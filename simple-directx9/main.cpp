@@ -251,7 +251,7 @@ void Render()
     for (int i = 0; i < 10; i++)
     {
         float ang = (D3DX_PI * 2.0f / 10.0f) * i + f * 0.2f;
-        lights[i].pos = D3DXVECTOR3(R * cosf(ang), 100.0f, R * sinf(ang));
+        lights[i].pos = D3DXVECTOR3(R * cosf(ang), 101.0f, R * sinf(ang));
         lights[i].range = 400.0f;
         // RGB を巡回させて分かりやすく
         lights[i].color = D3DXVECTOR3((i % 3) == 0 ? 1.0f : 0.2f,
