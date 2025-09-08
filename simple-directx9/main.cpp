@@ -231,8 +231,8 @@ void Render()
                                1.0f,
                                10000.0f);
 
-    D3DXVECTOR3 eye(300 * sinf(f), 200, -300 * cosf(f));
-    D3DXVECTOR3 at(0, 0, 0);
+    D3DXVECTOR3 eye(150 * sinf(f), 150, -150 * cosf(f));
+    D3DXVECTOR3 at(0, 100, 0);
     D3DXVECTOR3 up(0, 1, 0);
     D3DXMatrixLookAtLH(&View, &eye, &at, &up);
 
@@ -247,11 +247,11 @@ void Render()
 
     // ===== ライト10個をリング状に配置 =====
     PointLight lights[10];
-    const float R = 220.0f;
+    const float R = 50.0f;
     for (int i = 0; i < 10; i++)
     {
         float ang = (D3DX_PI * 2.0f / 10.0f) * i + f * 0.2f;
-        lights[i].pos = D3DXVECTOR3(R * cosf(ang), 120.0f, R * sinf(ang));
+        lights[i].pos = D3DXVECTOR3(R * cosf(ang), 100.0f, R * sinf(ang));
         lights[i].range = 400.0f;
         // RGB を巡回させて分かりやすく
         lights[i].color = D3DXVECTOR3((i % 3) == 0 ? 1.0f : 0.2f,

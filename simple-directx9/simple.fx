@@ -1,6 +1,7 @@
+// simple.fx â€” diffuse only (no specular)
+
 float4x4 g_matWorldViewProj;
 float4x4 g_matWorld;
-float4 g_eyePos; // ‹“_iƒ[ƒ‹ƒhj
 
 struct PointLight
 {
@@ -36,7 +37,7 @@ void VS(in float4 inPosition : POSITION,
     outPos = mul(inPosition, g_matWorldViewProj);
     outWorldPos = mul(inPosition, g_matWorld).xyz;
 
-    // ƒXƒP[ƒ‹‚Í“™•û‚È‚Ì‚Å float3x3 ‚ÅOKi”ñ“™•û‚È‚ç‹t“]’us—ñ‚ğg—pj
+    // ç­‰æ–¹ã‚¹ã‚±ãƒ¼ãƒ«å‰æã€‚éç­‰æ–¹ã‚¹ã‚±ãƒ¼ãƒ«æ™‚ã¯é€†è»¢ç½®è¡Œåˆ—ã§å¤‰æ›ã—ã¦ãã ã•ã„ã€‚
     outNormal = normalize(mul(inNormal, (float3x3) g_matWorld));
     outTex = inTexCoord;
 }
@@ -49,39 +50,28 @@ void PS(in float3 inWorldPos : TEXCOORD0,
     float3 baseColor = tex2D(textureSampler, inTex).rgb;
     float3 N = normalize(inNormal);
 
-    float3 ambient = 0.20 * baseColor; // ŠÂ‹«Œõ
+    float3 diffuseSum = 0;
 
-    float3 V = normalize(g_eyePos.xyz - inWorldPos); // ‹üƒxƒNƒgƒ‹
-
-    float3 sum = 0;
-
+    // ãƒ«ãƒ¼ãƒ—ã¯å›ºå®š10å›ã€‚g_numLights ã«ã‚ˆã£ã¦æœ‰åŠ¹/ç„¡åŠ¹ã‚’åˆ‡æ›¿ã€‚
     [unroll]
-    for (int i = 0; i < g_numLights; i++)
+    for (int i = 0; i < 10; ++i)
     {
+        float enabled = (i < g_numLights) ? 1.0 : 0.0;
+
         float3 Lvec = g_pointLights[i].pos - inWorldPos;
         float dist = length(Lvec);
+        float attenuation = 2.f - sqrt(dist * 0.2f);
 
-        if (dist < g_pointLights[i].range)
+        if (attenuation < 0.0f)
         {
-            float3 L = Lvec / dist;
-            float NdotL = max(dot(N, L), 0);
-
-            // ‹——£Œ¸ŠiüŒ`j
-            float atten = 1.0 - (dist / g_pointLights[i].range);
-            atten = saturate(atten);
-
-            // ŠÈˆÕƒXƒyƒLƒ…ƒ‰iBlinn-Phongj
-            float3 H = normalize(L + V);
-            float spec = pow(max(dot(N, H), 0), 32.0);
-
-            float3 diff = baseColor * g_pointLights[i].color * NdotL * 3;
-            float3 specC = g_pointLights[i].color * spec * 10.25; // ‹­‚·‚¬‚È‚¢‚æ‚¤ŒW”
-
-            sum += (diff + specC) * atten;
+            attenuation = 0.0f;
         }
+
+        diffuseSum += enabled * (baseColor * g_pointLights[i].color * attenuation);
     }
 
-    outColor = float4(ambient + sum, 1.0);
+    float3 ambient = 0.20 * baseColor; // ç’°å¢ƒå…‰
+    outColor = float4(ambient + diffuseSum, 1.0);
 }
 
 technique Technique1
@@ -92,3 +82,4 @@ technique Technique1
         PixelShader = compile ps_3_0 PS();
     }
 }
+
